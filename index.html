@@ -208,7 +208,7 @@ async function saveDailyProgress(){clearMsg(progressMessage);saveProgress.disabl
 saveProgress.onclick=saveDailyProgress;resetProgress.onclick=()=>{dailyProgress={Reading:0,Speaking:0,Writing:0,Listening:0};renderProgress();clearMsg(progressMessage)};
 setInterval(async()=>{if(currentUser&&today()!==lastProgressDate){await loadProgress()}},30000);
 
-function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='profilePage')openProfile();if(id==='progressPage')loadProgress()}
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='progressPage')loadProgress()}
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>goPage(b.dataset.page));document.querySelectorAll('[data-page-link]').forEach(b=>b.onclick=()=>goPage(b.dataset.pageLink));document.getElementById('openProfilePage').onclick=openProfile;
 const existing=getSession();if(existing?.user&&existing?.access_token){showApp(existing.user)}else showAuth();
 </script>
