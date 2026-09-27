@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>English Hub</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f6fa;color:#182033;min-height:100vh}.wrap{max-width:900px;margin:auto;padding:24px 16px}.brand{margin:12px 0 20px}.brand h1{margin:0 0 6px;font-size:30px}.small{color:#687386;font-size:14px;line-height:1.5}.card{background:#fff;border:1px solid #e6e8ef;border-radius:18px;padding:20px;box-shadow:0 8px 28px rgba(20,30,60,.06);margin-bottom:16px}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f0f2f7;padding:5px;border-radius:12px;margin-bottom:22px}.tab,.filter{border:0;background:transparent;color:#687386;padding:11px;border-radius:9px;font-weight:bold;cursor:pointer}.tab.active,.filter.active{background:#fff;color:#182033;box-shadow:0 2px 8px rgba(20,30,60,.08)}label{display:block;font-size:14px;font-weight:bold;margin:12px 0 7px}input,select,textarea{width:100%;padding:12px;border:1px solid #d9dde7;border-radius:10px;font:inherit;background:#fff}textarea{min-height:90px;resize:vertical}input:focus,select:focus,textarea:focus{outline:2px solid #cdd3ff;border-color:#4f5fe7}button.primary{width:100%;margin-top:18px;padding:13px;border:0;border-radius:10px;background:#4f5fe7;color:#fff;font-weight:bold;font-size:15px;cursor:pointer}.message{display:none;margin-top:14px;padding:11px 12px;border-radius:10px;font-size:14px;line-height:1.45}.message.show{display:block}.message.error{background:#fff0f0;color:#a42626}.message.success{background:#eef9f0;color:#267238}.signed-in{display:none}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.topbar h2{margin:0}.logout{border:0;border-radius:10px;padding:10px 14px;background:#e9ebf2;color:#182033;font-weight:bold;cursor:pointer}.resource-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.resource-head h2{margin:0}.add{border:0;border-radius:10px;padding:10px 14px;background:#182033;color:#fff;font-weight:bold;cursor:pointer}.filters{display:flex;gap:6px;flex-wrap:wrap;background:#f0f2f7;padding:5px;border-radius:12px;margin-bottom:16px}.filters .filter{font-size:13px}.resources{display:grid;gap:10px}.resource{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #e3e6ed;border-radius:14px;background:#fff;cursor:pointer}.resource:hover{background:#fafbfe}.favicon{width:40px;height:40px;border-radius:10px;object-fit:cover;background:#eef0f5;flex:0 0 40px}.resource-main{min-width:0;flex:1}.resource-title{font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.resource-meta{font-size:12px;color:#687386;margin-top:5px}.pencil{border:0;background:transparent;font-size:19px;cursor:pointer;padding:7px;color:#687386}.empty{text-align:center;padding:28px 10px;color:#687386}.hidden{display:none!important}.modal{position:fixed;inset:0;background:rgba(10,15,30,.42);display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}.modal-box{background:#fff;border-radius:18px;padding:20px;max-width:520px;width:100%;max-height:90vh;overflow:auto}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0}.close{border:0;background:#eef0f5;border-radius:9px;padding:7px 10px;cursor:pointer}.danger{width:100%;margin-top:10px;padding:12px;border:1px solid #e2b6b6;border-radius:10px;background:#fff3f3;color:#a42626;font-weight:bold;cursor:pointer}@media(max-width:600px){.wrap{padding:18px 12px}.topbar{align-items:flex-start}.resource-head{align-items:flex-start}.resource{padding:12px}.brand h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><h1>🇬🇧 English Hub</h1><div class="small">Your personal place for English learning resources.</div></div>
+
+  <section id="authCard" class="card">
+    <div class="tabs"><button id="loginTab" class="tab active" type="button">Log in</button><button id="signupTab" class="tab" type="button">Create account</button></div>
+    <form id="authForm">
+      <div id="nameField" class="hidden"><label for="name">Name</label><input id="name" type="text" autocomplete="name" placeholder="Your name"></div>
+      <label for="email">Email</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+      <button id="submitBtn" class="primary" type="submit">Log in</button>
+    </form>
+    <div id="authMessage" class="message" aria-live="polite"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="topbar"><div><h2>My English Hub</h2><div id="accountEmail" class="small"></div></div><button id="signoutBtn" class="logout" type="button">Log out</button></div>
+    <div class="card">
+      <div class="resource-head"><div><h2>My Resources</h2><div class="small">Save websites, videos, articles, podcasts and other English-learning sources.</div></div><button id="addBtn" class="add" type="button">+ Add Resource</button></div>
+      <div id="filters" class="filters"></div>
+      <div id="resources" class="resources"></div>
+    </div>
+  </section>
+</div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="modalTitle">Add Resource</h3><button id="closeModal" class="close" type="button">✕</button></div>
+    <form id="resourceForm">
+      <label for="rName">Source name</label><input id="rName" required placeholder="e.g. BBC Learning English">
+      <label for="rUrl">Link</label><input id="rUrl" type="url" required placeholder="https://example.com">
+      <label for="rSkill">Skill</label><select id="rSkill" required><option>Reading</option><option>Writing</option><option>Speaking</option><option>Listening</option><option>Grammar</option><option>Vocabulary</option></select>
+      <label for="rLevel">Level</label><select id="rLevel"><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option><option>All levels</option></select>
+      <label for="rNotes">Notes</label><textarea id="rNotes" placeholder="Optional notes"></textarea>
+      <button class="primary" id="saveResource" type="submit">Save Resource</button>
+      <button class="danger hidden" id="deleteResource" type="button">Delete Resource</button>
+    </form>
+    <div id="resourceMessage" class="message"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://jsshzkournygwehjpgfa.supabase.co';
+const SUPABASE_KEY='sb_publishable_5MtgmCea9t10k96hBm9nzQ_BqMvlygO';
+const authCard=document.getElementById('authCard'),app=document.getElementById('app'),authForm=document.getElementById('authForm'),authMessage=document.getElementById('authMessage'),loginTab=document.getElementById('loginTab'),signupTab=document.getElementById('signupTab'),nameField=document.getElementById('nameField'),nameInput=document.getElementById('name'),submitBtn=document.getElementById('submitBtn'),signoutBtn=document.getElementById('signoutBtn'),accountEmail=document.getElementById('accountEmail'),filters=document.getElementById('filters'),resourcesEl=document.getElementById('resources'),modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),resourceForm=document.getElementById('resourceForm'),rName=document.getElementById('rName'),rUrl=document.getElementById('rUrl'),rSkill=document.getElementById('rSkill'),rLevel=document.getElementById('rLevel'),rNotes=document.getElementById('rNotes'),saveResource=document.getElementById('saveResource'),deleteResource=document.getElementById('deleteResource'),resourceMessage=document.getElementById('resourceMessage');
+let mode='login',currentUser=null,resources=[],activeFilter='All',editingId=null;
+function msg(el,t,type='error'){el.textContent=t;el.className='message show '+type}
+function clearMsg(el){el.className='message';el.textContent=''}
+function setMode(next){mode=next;const s=mode==='signup';loginTab.classList.toggle('active',!s);signupTab.classList.toggle('active',s);nameField.classList.toggle('hidden',!s);nameInput.required=s;document.getElementById('password').autocomplete=s?'new-password':'current-password';submitBtn.textContent=s?'Create account':'Log in';clearMsg(authMessage)}
+loginTab.onclick=()=>setMode('login');signupTab.onclick=()=>setMode('signup');
+function saveSession(data){localStorage.setItem('eh_session',JSON.stringify(data))}
+function getSession(){try{return JSON.parse(localStorage.getItem('eh_session')||'null')}catch{return null}}
+function clearSession(){localStorage.removeItem('eh_session')}
+function session(){return getSession()}
+async function api(path,opts={}){const s=session();const headers={'apikey':SUPABASE_KEY,'Content-Type':'application/json',...(opts.headers||{})};if(s?.access_token)headers.Authorization='Bearer '+s.access_token;const r=await fetch(SUPABASE_URL+path,{...opts,headers});let data=null;try{data=await r.json()}catch{}if(!r.ok){throw new Error(data?.msg||data?.message||data?.error_description||'Something went wrong.')}return data}
+async function authRequest(path,body){return api('/auth/v1/'+path,{method:'POST',body:JSON.stringify(body),headers:{}})}
+function showApp(user){currentUser=user;authCard.classList.add('hidden');app.classList.remove('hidden');accountEmail.textContent=user?.email||'';loadResources()}
+function showAuth(){currentUser=null;app.classList.add('hidden');authCard.classList.remove('hidden')}
+
+authForm.addEventListener('submit',async e=>{e.preventDefault();clearMsg(authMessage);submitBtn.disabled=true;submitBtn.textContent=mode==='signup'?'Creating…':'Logging in…';try{const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(mode==='signup'){const fullName=nameInput.value.trim();const data=await authRequest('signup',{email,password,data:{full_name:fullName}});if(data.session&&data.user){saveSession(data);showApp(data.user)}else msg(authMessage,'Account created. Check your email to confirm your account, then log in.','success')}else{const data=await authRequest('token?grant_type=password',{email,password});saveSession(data);showApp(data.user)}}catch(err){msg(authMessage,err.message)}finally{submitBtn.disabled=false;submitBtn.textContent=mode==='signup'?'Create account':'Log in'}});
+
+signoutBtn.onclick=async()=>{const s=session();try{if(s?.access_token)await api('/auth/v1/logout',{method:'POST'})}catch{}clearSession();showAuth();setMode('login')};
+
+document.getElementById('addBtn').onclick=()=>openModal();document.getElementById('closeModal').onclick=closeModal;modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+function openModal(item=null){editingId=item?.id||null;modalTitle.textContent=item?'Edit Resource':'Add Resource';rName.value=item?.name||'';rUrl.value=item?.url||'';rSkill.value=item?.skill||'Reading';rLevel.value=item?.level||'A1';rNotes.value=item?.notes||'';deleteResource.classList.toggle('hidden',!item);clearMsg(resourceMessage);modal.classList.remove('hidden')}
+function closeModal(){modal.classList.add('hidden');editingId=null;clearMsg(resourceMessage)}
+function favicon(url){try{return 'https://www.google.com/s2/favicons?domain='+encodeURIComponent(new URL(url).hostname)+'&sz=64'}catch{return ''}}
+async function loadResources(){resourcesEl.innerHTML='<div class="empty">Loading resources…</div>';try{resources=await api('/rest/v1/resources?select=*&order=created_at.desc');renderFilters();renderResources()}catch(err){resources=[];resourcesEl.innerHTML='<div class="empty">Could not load resources. Make sure the Phase 2 database SQL has been run in Supabase.</div>'}}
+function renderFilters(){const skills=['All','Reading','Writing','Speaking','Listening','Grammar','Vocabulary'];filters.innerHTML=skills.map(s=>`<button class="filter ${activeFilter===s?'active':''}" data-filter="${s}" type="button">${s}</button>`).join('');filters.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.filter;renderFilters();renderResources()})}
+function renderResources(){const list=activeFilter==='All'?resources:resources.filter(x=>x.skill===activeFilter);if(!list.length){resourcesEl.innerHTML='<div class="empty">No resources here yet. Click “+ Add Resource” to add your first one.</div>';return}resourcesEl.innerHTML=list.map(x=>`<div class="resource" data-id="${x.id}"><img class="favicon" src="${favicon(x.url)}" alt=""><div class="resource-main"><div class="resource-title">${escapeHtml(x.name)}</div><div class="resource-meta">${escapeHtml(x.skill)} • ${escapeHtml(x.level||'All levels')}</div></div><button class="pencil" data-edit="${x.id}" type="button" aria-label="Edit resource">✎</button></div>`).join('');resourcesEl.querySelectorAll('.resource').forEach(card=>card.onclick=e=>{if(e.target.closest('[data-edit]'))return;const item=resources.find(x=>String(x.id)===card.dataset.id);if(item)window.open(item.url,'_blank','noopener')});resourcesEl.querySelectorAll('[data-edit]').forEach(b=>b.onclick=e=>{e.stopPropagation();const item=resources.find(x=>String(x.id)===b.dataset.edit);if(item)openModal(item)})}
+function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+resourceForm.addEventListener('submit',async e=>{e.preventDefault();clearMsg(resourceMessage);saveResource.disabled=true;saveResource.textContent='Saving…';try{const payload={name:rName.value.trim(),url:rUrl.value.trim(),skill:rSkill.value,level:rLevel.value,notes:rNotes.value.trim()};if(!payload.name||!payload.url)throw new Error('Please enter a source name and link.');if(editingId){await api('/rest/v1/resources?id=eq.'+encodeURIComponent(editingId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)})}else{payload.user_id=currentUser.id;await api('/rest/v1/resources',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(payload)})}closeModal();await loadResources()}catch(err){msg(resourceMessage,err.message)}finally{saveResource.disabled=false;saveResource.textContent='Save Resource'}});
+deleteResource.onclick=async()=>{if(!editingId)return;if(!confirm('Delete this resource?'))return;deleteResource.disabled=true;try{await api('/rest/v1/resources?id=eq.'+encodeURIComponent(editingId),{method:'DELETE'});closeModal();await loadResources()}catch(err){msg(resourceMessage,err.message)}finally{deleteResource.disabled=false}};
+
+const existing=getSession();if(existing?.user&&existing?.access_token){showApp(existing.user)}else showAuth();
+</script>
+</body></html>
