@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>English Hub — Accounts</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f6fa;color:#182033;min-height:100vh}.wrap{max-width:520px;margin:auto;padding:28px 18px}.brand{margin:20px 0 24px}.brand h1{margin:0 0 6px;font-size:30px}.small{color:#687386;font-size:14px;line-height:1.5}.card{background:#fff;border:1px solid #e6e8ef;border-radius:18px;padding:24px;box-shadow:0 8px 28px rgba(20,30,60,.06)}.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f0f2f7;padding:5px;border-radius:12px;margin-bottom:22px}.tab{border:0;background:transparent;color:#687386;padding:11px;border-radius:9px;font-weight:bold;cursor:pointer}.tab.active{background:#fff;color:#182033;box-shadow:0 2px 8px rgba(20,30,60,.08)}label{display:block;font-size:14px;font-weight:bold;margin:12px 0 7px}input{width:100%;padding:13px;border:1px solid #d9dde7;border-radius:10px;font:inherit}input:focus{outline:2px solid #cdd3ff;border-color:#4f5fe7}button.primary{width:100%;margin-top:18px;padding:13px;border:0;border-radius:10px;background:#4f5fe7;color:#fff;font-weight:bold;font-size:15px;cursor:pointer}button.primary:disabled{opacity:.6;cursor:not-allowed}.message{display:none;margin-top:14px;padding:11px 12px;border-radius:10px;font-size:14px;line-height:1.45}.message.show{display:block}.message.error{background:#fff0f0;color:#a42626}.message.success{background:#eef9f0;color:#267238}.signed-in{display:none;text-align:center}.user-email{font-weight:bold;word-break:break-word}.signout{margin-top:18px;padding:11px 18px;border:0;border-radius:10px;background:#e9ebf2;color:#182033;font-weight:bold;cursor:pointer}.hidden{display:none!important}@media(max-width:480px){.wrap{padding:18px 14px}.card{padding:19px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><h1>🇬🇧 English Hub</h1><div class="small">Create your account and keep your English learning data in one place.</div></div>
+  <div id="authCard" class="card">
+    <div class="tabs"><button id="loginTab" class="tab active" type="button">Log in</button><button id="signupTab" class="tab" type="button">Create account</button></div>
+    <form id="authForm">
+      <div id="nameField" class="hidden"><label for="name">Name</label><input id="name" type="text" autocomplete="name" placeholder="Your name"></div>
+      <label for="email">Email</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+      <button id="submitBtn" class="primary" type="submit">Log in</button>
+    </form>
+    <div id="message" class="message" aria-live="polite"></div>
+  </div>
+  <div id="signedIn" class="card signed-in"><h2>You are logged in ✅</h2><p class="small">Account email:</p><div id="userEmail" class="user-email"></div><button id="signoutBtn" class="signout" type="button">Log out</button></div>
+</div>
+<script>
+const SUPABASE_URL='https://jsshzkournygwehjpgfa.supabase.co';
+const SUPABASE_KEY='sb_publishable_5MtgmCea9t10k96hBm9nzQ_BqMvlygO';
+const authCard=document.getElementById('authCard'),signedIn=document.getElementById('signedIn'),userEmail=document.getElementById('userEmail'),authForm=document.getElementById('authForm'),message=document.getElementById('message'),loginTab=document.getElementById('loginTab'),signupTab=document.getElementById('signupTab'),nameField=document.getElementById('nameField'),nameInput=document.getElementById('name'),submitBtn=document.getElementById('submitBtn'),signoutBtn=document.getElementById('signoutBtn');
+let mode='login';
+function showMessage(t,type='error'){message.textContent=t;message.className='message show '+type}
+function setMode(next){mode=next;const signup=mode==='signup';loginTab.classList.toggle('active',!signup);signupTab.classList.toggle('active',signup);nameField.classList.toggle('hidden',!signup);nameInput.required=signup;document.getElementById('password').autocomplete=signup?'new-password':'current-password';submitBtn.textContent=signup?'Create account':'Log in';message.className='message'}
+loginTab.onclick=()=>setMode('login');signupTab.onclick=()=>setMode('signup');
+function saveSession(data){localStorage.setItem('eh_session',JSON.stringify(data))}
+function getSession(){try{return JSON.parse(localStorage.getItem('eh_session')||'null')}catch{return null}}
+function clearSession(){localStorage.removeItem('eh_session')}
+function showSignedIn(user){authCard.style.display='none';signedIn.style.display='block';userEmail.textContent=user?.email||''}
+function showSignedOut(){authCard.style.display='block';signedIn.style.display='none'}
+async function authRequest(path,body){
+  const r=await fetch(SUPABASE_URL+'/auth/v1/'+path,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify(body)});
+  let data=null;try{data=await r.json()}catch{}
+  if(!r.ok){const msg=data?.msg||data?.message||data?.error_description||'Something went wrong. Please try again.';throw new Error(msg)}
+  return data;
+}
+const existing=getSession();if(existing?.user)showSignedIn(existing.user);
+authForm.addEventListener('submit',async e=>{
+ e.preventDefault();message.className='message';submitBtn.disabled=true;submitBtn.textContent=mode==='signup'?'Creating…':'Logging in…';
+ try{
+  const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+  if(mode==='signup'){
+   const fullName=nameInput.value.trim();
+   const data=await authRequest('signup',{email,password,data:{full_name:fullName}});
+   if(data.session&&data.user){saveSession(data);showSignedIn(data.user)}else showMessage('Account created. Check your email to confirm your account, then log in.','success');
+  }else{
+   const data=await authRequest('token?grant_type=password',{email,password});
+   saveSession(data);showSignedIn(data.user);
+  }
+ }catch(err){showMessage(err.message||'Could not complete the request.','error')}
+ finally{submitBtn.disabled=false;submitBtn.textContent=mode==='signup'?'Create account':'Log in'}
+});
+signoutBtn.addEventListener('click',async()=>{const s=getSession();try{if(s?.access_token){await fetch(SUPABASE_URL+'/auth/v1/logout',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+s.access_token}})} }catch{} clearSession();showSignedOut();setMode('login')});
+</script>
+</body></html>
