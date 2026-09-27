@@ -13,6 +13,8 @@
 .contrib-wrap{overflow-x:auto;padding:8px 2px 4px}.contrib{min-width:680px}.contrib-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.contrib-month{font-weight:700}.contrib-legend{display:flex;align-items:center;gap:5px;font-size:12px;color:#687386}.contrib-legend i{width:12px;height:12px;border-radius:3px;border:1px solid #dfe3e8;display:inline-block}.contrib-grid{display:grid;grid-template-columns:34px repeat(7,1fr);gap:4px}.contrib-daylabel{font-size:11px;color:#687386;display:flex;align-items:center;justify-content:center}.contrib-cell{height:18px;min-width:18px;border-radius:4px;background:#ebedf0;border:1px solid rgba(27,31,36,.05);cursor:pointer;position:relative}.contrib-cell.l1{background:#d6e685}.contrib-cell.l2{background:#8cc665}.contrib-cell.l3{background:#44a340}.contrib-cell.l4{background:#1e6823}.contrib-cell.today{outline:2px solid #4f5fe7;outline-offset:1px}.day-tooltip{display:none;margin-top:12px;padding:12px 14px;border:1px solid #dfe3e8;border-radius:10px;background:#fff;font-size:13px}.day-tooltip.show{display:block}.day-tooltip strong{display:block;margin-bottom:6px}.day-tooltip span{margin-right:12px;color:#687386}@media(max-width:700px){.contrib{min-width:610px}.contrib-cell{height:16px;min-width:16px}}
 
 .danger{width:100%;margin-top:10px;padding:12px;border:1px solid #e2b6b6;border-radius:10px;background:#fff3f3;color:#a42626;font-weight:bold;cursor:pointer}.resource-actions{display:flex;align-items:center;gap:4px}.start-btn{border:0;border-radius:9px;padding:8px 10px;background:#182033;color:#fff;font-weight:bold;cursor:pointer;font-size:12px}.timer-card{text-align:center}.timer-resource{font-weight:bold;font-size:18px;margin:4px 0}.timer-skill{font-size:13px;color:#687386}.timer-display{font-size:52px;font-weight:800;letter-spacing:2px;margin:22px 0 18px}.timer-actions{display:flex;gap:10px}.timer-actions button{flex:1}.timer-note{font-size:12px;color:#687386;margin-top:12px}.session-success{padding:12px;border-radius:10px;background:#eef9f0;color:#267238;font-size:14px;margin-top:12px}.timer-close-row{display:flex;justify-content:flex-end}@media(max-width:600px){.wrap{padding:18px 12px}.topbar{align-items:flex-start}.resource-head{align-items:flex-start}.resource{padding:12px}.brand h1{font-size:27px}}
+
+.app-shell{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;align-items:start}.sidebar{position:sticky;top:20px}.side-brand{font-weight:800;font-size:20px;margin-bottom:18px}.nav{display:grid;gap:6px}.nav-btn{text-align:left;border:0;background:transparent;padding:12px 14px;border-radius:11px;color:#687386;font-weight:bold;cursor:pointer}.nav-btn.active{background:#fff;color:#182033;box-shadow:0 2px 8px rgba(20,30,60,.08)}.page{display:none}.page.active{display:block}.page-title{margin:0 0 4px;font-size:25px}.page-subtitle{margin-bottom:16px}.dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.stat-card{padding:18px}.stat-value{font-size:28px;font-weight:800;margin-top:6px}.quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.quick-actions button{border:0;border-radius:10px;padding:10px 13px;font-weight:bold;cursor:pointer;background:#182033;color:#fff}.mobile-nav{display:none}@media(max-width:800px){.app-shell{display:block}.sidebar{display:none}.mobile-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;position:sticky;bottom:8px;z-index:4;background:#fff;border:1px solid #e3e6ed;border-radius:14px;padding:5px;box-shadow:0 8px 24px rgba(20,30,60,.1);margin-top:14px}.mobile-nav .nav-btn{text-align:center;padding:10px 4px;font-size:12px}.dashboard-grid{grid-template-columns:1fr}}@media(min-width:801px){.page.card-page{min-height:200px}}
 </style>
 </head>
 <body>
@@ -32,10 +34,34 @@
 
   <section id="app" class="hidden">
     <div class="topbar"><div class="profile-bar"><div id="headerAvatar" class="profile-avatar">?</div><div class="profile-info"><div id="headerName" class="profile-name">My English Hub</div><div id="accountEmail" class="small"></div></div><button id="profileBtn" class="profile-btn" type="button">Profile</button></div><button id="signoutBtn" class="logout" type="button">Log out</button></div>
-
-    <div class="card">
-      <div class="resource-head"><div><h2>📈 Daily Progress</h2><div class="small">Your daily English goal is 60 minutes — 15 minutes for each skill.</div></div></div>
-      <div class="progress-wrap">
+    <div class="app-shell">
+      <aside class="sidebar"><div class="side-brand">🇬🇧 English Hub</div><nav class="nav"><button class="nav-btn active" data-page="dashboard" type="button">🏠 Dashboard</button><button class="nav-btn" data-page="resourcesPage" type="button">📚 My Resources</button><button class="nav-btn" data-page="progressPage" type="button">📈 Progress</button><button class="nav-btn" data-page="profilePage" type="button">👤 Profile</button></nav></aside>
+      <main>
+        <section id="dashboard" class="page active">
+          <h2 class="page-title">Dashboard</h2><div class="small page-subtitle">Your English learning overview.</div>
+          <div class="dashboard-grid">
+            <div class="card stat-card"><div class="small">Today</div><div id="dashToday" class="stat-value">0/60 min</div><div class="small">Daily goal</div><div class="quick-actions"><button type="button" data-page-link="progressPage">Open Progress</button><button type="button" data-page-link="resourcesPage">My Resources</button></div></div>
+            <div class="card stat-card"><div class="small">Learning</div><div id="dashSessions" class="stat-value">—</div><div class="small">Sessions today</div></div>
+          </div>
+        </section>
+        <section id="resourcesPage" class="page">
+          <div class="card">
+            <div class="resource-head"><div><h2>My Resources</h2><div class="small">Save websites, videos, articles, podcasts and other English-learning sources.</div></div><button id="addBtn" class="add" type="button">+ Add Resource</button></div>
+            <div id="filters" class="filters"></div><div id="resources" class="resources"></div>
+          </div>
+        </section>
+        <section id="progressPage" class="page">
+          <div class="card">
+            <div class="resource-head"><div><h2>📈 Daily Progress</h2><div class="small">Your daily English goal is 60 minutes — 15 minutes for each skill.</div></div></div>
+            <div class="progress-wrap"><div id="progressCircle" class="progress-circle"><div class="progress-center"><div id="progressTotal" class="progress-total">0/60</div><div class="progress-label">minutes today</div></div></div><div><div id="progressSkills"></div><div class="progress-actions"><button id="saveProgress" class="add" type="button">Save Progress</button><button id="resetProgress" class="logout" type="button">Reset</button></div><div id="progressMessage" class="message" aria-live="polite"></div><div class="progress-note">You can enter more than 15 minutes; the visual section stops filling at 15 minutes.</div></div></div>
+          </div>
+          <div class="card"><div class="resource-head"><div><h2>📅 Monthly Progress</h2><div class="small">Your saved daily progress is kept by month. Nothing resets or gets deleted at midnight.</div></div></div><div id="monthlySummary" class="monthly-summary"></div></div>
+        </section>
+        <section id="profilePage" class="page"><div class="card"><div class="resource-head"><div><h2>👤 Profile</h2><div class="small">Manage your personal information.</div></div><button id="openProfilePage" class="profile-btn" type="button">Edit Profile</button></div><div class="small">Your profile picture, name and email are available here.</div></div></section>
+        <nav class="mobile-nav"><button class="nav-btn active" data-page="dashboard" type="button">🏠 Home</button><button class="nav-btn" data-page="resourcesPage" type="button">📚 Resources</button><button class="nav-btn" data-page="progressPage" type="button">📈 Progress</button><button class="nav-btn" data-page="profilePage" type="button">👤 Profile</button></nav>
+      </main>
+    </div>
+  </section>
         <div id="progressCircle" class="progress-circle">
           <div class="progress-center"><div id="progressTotal" class="progress-total">0/60</div><div class="progress-label">minutes today</div></div>
         </div>
@@ -198,6 +224,8 @@ async function saveDailyProgress(){clearMsg(progressMessage);saveProgress.disabl
 saveProgress.onclick=saveDailyProgress;resetProgress.onclick=()=>{dailyProgress={Reading:0,Speaking:0,Writing:0,Listening:0};renderProgress();clearMsg(progressMessage)};
 setInterval(async()=>{if(currentUser&&today()!==lastProgressDate){await loadProgress()}},30000);
 
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='profilePage')openProfile();if(id==='progressPage')loadProgress()}
+document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>goPage(b.dataset.page));document.querySelectorAll('[data-page-link]').forEach(b=>b.onclick=()=>goPage(b.dataset.pageLink));document.getElementById('openProfilePage').onclick=openProfile;
 const existing=getSession();if(existing?.user&&existing?.access_token){showApp(existing.user)}else showAuth();
 </script>
 </body></html>
