@@ -220,6 +220,40 @@ function renderAdminAnalytics(visits,users){const now=new Date(),currentMonth=mo
 function renderAdminUsers(){const q=String(adminUserSearchText||'').trim().toLowerCase();const list=adminUsersData.filter(u=>!q||u._name.toLowerCase().includes(q)||(u.english_level||'').toLowerCase().includes(q));adminUsersTable.innerHTML=list.map(u=>'<tr><td><b>'+escapeHtml(u._name)+'</b>'+(u.role==='admin'?' <span class="admin-badge">Admin</span>':'')+'</td><td>'+((u.age??'—'))+'</td><td><span class="admin-badge">'+(u.english_level||'Not set')+'</span></td><td>'+u._resources+'</td><td>'+u._minutes+' min</td><td>'+u._monthVisits+'</td><td>'+formatDuration(u._monthSeconds)+'</td><td>'+formatDuration(u._todaySession)+'</td><td>'+formatDateTime(u._lastVisit)+'</td><td>'+formatDateTime(u._lastLearning)+'</td><td>'+new Date(u.created_at).toLocaleDateString()+'</td><td><button class="admin-detail" data-user-detail="'+u.id+'" type="button">View</button></td></tr>').join('')||'<tr><td colspan="12">No matching users.</td></tr>';}
 function formatDateTime(v){if(!v)return 'Never';return new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Cairo',dateStyle:'medium',timeStyle:'short'}).format(new Date(v))}
 document.getElementById('adminUserSearch')?.addEventListener('input',e=>{adminUserSearchText=e.target.value;renderAdminUsers()});
+
+// Admin user management
+async function adminEditUser(id){
+ const u=adminDetailUsers[id];if(!u)return;
+ const first=prompt('First name',u.first_name||'');if(first===null)return;
+ const last=prompt('Last name',u.last_name||'');if(last===null)return;
+ const ageRaw=prompt('Age (leave empty to clear)',u.age??'');if(ageRaw===null)return;
+ const levelRaw=prompt('English level: A1, A2, B1, B2, C1, C2',u.english_level||'');if(levelRaw===null)return;
+ const level=levelRaw.trim().toUpperCase(),age=ageRaw.trim()===''?null:Number(ageRaw);
+ if(age!==null&&(!Number.isInteger(age)||age<1||age>120)){alert('Age must be between 1 and 120.');return}
+ if(level&&!['A1','A2','B1','B2','C1','C2'].includes(level)){alert('Invalid English level.');return}
+ try{
+  await api('/rest/v1/profiles?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({first_name:first.trim(),last_name:last.trim(),full_name:[first.trim(),last.trim()].filter(Boolean).join(' ')||null,age,english_level:level||null})});
+  await loadAdmin();openAdminUser(id);
+ }catch(err){alert(err.message||'Could not update user.')}
+}
+async function adminToggleUser(id){
+ const u=adminDetailUsers[id];if(!u)return;
+ const next=u.account_status==='suspended'?'active':'suspended';
+ if(!confirm((next==='suspended'?'Suspend':'Reactivate')+' this account?'))return;
+ try{
+  await api('/rest/v1/profiles?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({account_status:next})});
+  await loadAdmin();openAdminUser(id);
+ }catch(err){alert(err.message||'Could not change account status.')}
+}
+async function adminDeleteUser(id){
+ const u=adminDetailUsers[id];if(!u||u.role==='admin')return alert('Admin accounts cannot be deleted here.');
+ if(!confirm('Delete this user profile permanently?'))return;
+ try{
+  await api('/rest/v1/profiles?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{Prefer:'return=minimal'}});
+  closeAdminUser();await loadAdmin();
+ }catch(err){alert(err.message||'Could not delete user.')}
+}
+
 let adminDetailRange=30;
 function renderAdminUserActivity(id){
  const u=adminDetailUsers[id],box=document.getElementById('adminActivity');if(!u||!box)return;
