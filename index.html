@@ -28,8 +28,17 @@
       <label for="email">Email</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
       <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
       <button id="submitBtn" class="primary" type="submit">Log in</button>
+      <button id="forgotPasswordBtn" type="button" style="display:block;margin:12px auto 0;border:0;background:transparent;color:#4f5fe7;font-weight:bold;cursor:pointer">Forgot password?</button>
     </form>
     <div id="authMessage" class="message" aria-live="polite"></div>
+    <div id="resetPanel" class="hidden" style="margin-top:18px;padding-top:18px;border-top:1px solid #e6e8ef">
+      <h3 style="margin:0 0 6px">Set a new password</h3>
+      <div class="small">Choose a new password for your English Hub account.</div>
+      <label for="newPassword">New password</label><input id="newPassword" type="password" minlength="6" autocomplete="new-password" placeholder="At least 6 characters">
+      <label for="confirmNewPassword">Confirm new password</label><input id="confirmNewPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Repeat your password">
+      <button id="resetPasswordBtn" class="primary" type="button">Update password</button>
+      <div id="resetMessage" class="message" aria-live="polite"></div>
+    </div>
   </section>
 
   <section id="app" class="hidden">
@@ -100,12 +109,67 @@
 const SUPABASE_URL='https://jsshzkournygwehjpgfa.supabase.co';
 const SUPABASE_KEY='sb_publishable_5MtgmCea9t10k96hBm9nzQ_BqMvlygO';
 const AVATAR_BUCKET='profile-avatars';
-const authCard=document.getElementById('authCard'),app=document.getElementById('app'),authForm=document.getElementById('authForm'),authMessage=document.getElementById('authMessage'),loginTab=document.getElementById('loginTab'),signupTab=document.getElementById('signupTab'),nameField=document.getElementById('nameField'),firstNameSignup=document.getElementById('firstNameSignup'),lastNameSignup=document.getElementById('lastNameSignup'),submitBtn=document.getElementById('submitBtn'),signoutBtn=document.getElementById('signoutBtn'),accountEmail=document.getElementById('accountEmail'),headerAvatar=document.getElementById('headerAvatar'),headerName=document.getElementById('headerName'),profileBtn=document.getElementById('profileBtn'),profileModal=document.getElementById('profileModal'),closeProfile=document.getElementById('closeProfile'),profileForm=document.getElementById('profileForm'),firstName=document.getElementById('firstName'),lastName=document.getElementById('lastName'),profileAge=document.getElementById('profileAge'),englishLevel=document.getElementById('englishLevel'),profileEmail=document.getElementById('profileEmail'),headerEmailEye=document.getElementById('headerEmailEye'),profilePageEmailEye=document.getElementById('profilePageEmailEye'),profileModalEmailEye=document.getElementById('profileModalEmailEye'),avatarFile=document.getElementById('avatarFile'),avatarPreview=document.getElementById('avatarPreview'),saveProfile=document.getElementById('saveProfile'),profileMessage=document.getElementById('profileMessage'),profilePageName=document.getElementById('profilePageName'),profilePageEmail=document.getElementById('profilePageEmail'),profilePageAge=document.getElementById('profilePageAge'),profilePageLevel=document.getElementById('profilePageLevel'),profilePageAvatar=document.getElementById('profilePageAvatar'),filters=document.getElementById('filters'),resourcesEl=document.getElementById('resources'),modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),resourceForm=document.getElementById('resourceForm'),rName=document.getElementById('rName'),rUrl=document.getElementById('rUrl'),rSkill=document.getElementById('rSkill'),rLevel=document.getElementById('rLevel'),rNotes=document.getElementById('rNotes'),saveResource=document.getElementById('saveResource'),deleteResource=document.getElementById('deleteResource'),resourceMessage=document.getElementById('resourceMessage');
+const authCard=document.getElementById('authCard'),app=document.getElementById('app'),forgotPasswordBtn=document.getElementById('forgotPasswordBtn'),resetPanel=document.getElementById('resetPanel'),newPassword=document.getElementById('newPassword'),confirmNewPassword=document.getElementById('confirmNewPassword'),resetPasswordBtn=document.getElementById('resetPasswordBtn'),resetMessage=document.getElementById('resetMessage'),authForm=document.getElementById('authForm'),authMessage=document.getElementById('authMessage'),loginTab=document.getElementById('loginTab'),signupTab=document.getElementById('signupTab'),nameField=document.getElementById('nameField'),firstNameSignup=document.getElementById('firstNameSignup'),lastNameSignup=document.getElementById('lastNameSignup'),submitBtn=document.getElementById('submitBtn'),signoutBtn=document.getElementById('signoutBtn'),accountEmail=document.getElementById('accountEmail'),headerAvatar=document.getElementById('headerAvatar'),headerName=document.getElementById('headerName'),profileBtn=document.getElementById('profileBtn'),profileModal=document.getElementById('profileModal'),closeProfile=document.getElementById('closeProfile'),profileForm=document.getElementById('profileForm'),firstName=document.getElementById('firstName'),lastName=document.getElementById('lastName'),profileAge=document.getElementById('profileAge'),englishLevel=document.getElementById('englishLevel'),profileEmail=document.getElementById('profileEmail'),headerEmailEye=document.getElementById('headerEmailEye'),profilePageEmailEye=document.getElementById('profilePageEmailEye'),profileModalEmailEye=document.getElementById('profileModalEmailEye'),avatarFile=document.getElementById('avatarFile'),avatarPreview=document.getElementById('avatarPreview'),saveProfile=document.getElementById('saveProfile'),profileMessage=document.getElementById('profileMessage'),profilePageName=document.getElementById('profilePageName'),profilePageEmail=document.getElementById('profilePageEmail'),profilePageAge=document.getElementById('profilePageAge'),profilePageLevel=document.getElementById('profilePageLevel'),profilePageAvatar=document.getElementById('profilePageAvatar'),filters=document.getElementById('filters'),resourcesEl=document.getElementById('resources'),modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),resourceForm=document.getElementById('resourceForm'),rName=document.getElementById('rName'),rUrl=document.getElementById('rUrl'),rSkill=document.getElementById('rSkill'),rLevel=document.getElementById('rLevel'),rNotes=document.getElementById('rNotes'),saveResource=document.getElementById('saveResource'),deleteResource=document.getElementById('deleteResource'),resourceMessage=document.getElementById('resourceMessage');
 let mode='login',currentUser=null,currentProfile=null,isAdmin=false,emailVisible=false,resources=[],activeFilter='All',editingId=null,timerResource=null,timerStartedAt=null,timerInterval=null,timerSeconds=0,adminUsersData=[],adminUserSearchText='',adminDetailUsers={};
 function msg(el,t,type='error'){el.textContent=t;el.className='message show '+type}
 function clearMsg(el){el.className='message';el.textContent=''}
 function setMode(next){mode=next;const s=mode==='signup';loginTab.classList.toggle('active',!s);signupTab.classList.toggle('active',s);nameField.classList.toggle('hidden',!s);firstNameSignup.required=s;lastNameSignup.required=s;document.getElementById('password').autocomplete=s?'new-password':'current-password';submitBtn.textContent=s?'Create account':'Log in';clearMsg(authMessage)}
 loginTab.onclick=()=>setMode('login');signupTab.onclick=()=>setMode('signup');
+async function requestPasswordReset(){
+  const email=document.getElementById('email').value.trim();
+  if(!email){msg(authMessage,'Enter your email first.');return}
+  forgotPasswordBtn.disabled=true;
+  forgotPasswordBtn.textContent='Sending…';
+  clearMsg(authMessage);
+  try{
+    const redirectTo=window.location.origin+window.location.pathname;
+    const r=await fetch(SUPABASE_URL+'/auth/v1/recover',{
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,redirect_to:redirectTo})
+    });
+    let data=null;try{data=await r.json()}catch{}
+    if(!r.ok)throw new Error(data?.msg||data?.message||data?.error_description||'Could not send reset email.');
+    msg(authMessage,'If an account exists for this email, a password reset link has been sent. Check your inbox.','success');
+  }catch(err){msg(authMessage,err.message||'Could not send reset email.')}
+  finally{forgotPasswordBtn.disabled=false;forgotPasswordBtn.textContent='Forgot password?'}
+}
+forgotPasswordBtn.onclick=requestPasswordReset;
+
+function getRecoverySession(){
+  const hash=new URLSearchParams(window.location.hash.replace(/^#/,''));
+  if(hash.get('type')!=='recovery'||!hash.get('access_token'))return null;
+  return {access_token:hash.get('access_token'),token_type:hash.get('token_type')||'bearer',expires_in:Number(hash.get('expires_in')||3600),user:null};
+}
+async function openRecovery(){
+  const recovery=getRecoverySession();if(!recovery)return false;
+  clearSession();
+  saveSession(recovery);
+  authCard.classList.remove('hidden');app.classList.add('hidden');
+  document.querySelectorAll('#authCard > .tabs,#authForm,#forgotPasswordBtn').forEach(el=>el.classList.add('hidden'));
+  resetPanel.classList.remove('hidden');
+  clearMsg(authMessage);clearMsg(resetMessage);
+  newPassword.value='';confirmNewPassword.value='';
+  return true;
+}
+resetPasswordBtn.onclick=async()=>{
+  clearMsg(resetMessage);
+  const a=newPassword.value,b=confirmNewPassword.value;
+  if(a.length<6){msg(resetMessage,'Password must be at least 6 characters.');return}
+  if(a!==b){msg(resetMessage,'Passwords do not match.');return}
+  resetPasswordBtn.disabled=true;resetPasswordBtn.textContent='Updating…';
+  try{
+    await api('/auth/v1/user',{method:'PUT',body:JSON.stringify({password:a})});
+    clearSession();
+    history.replaceState({},document.title,window.location.pathname+window.location.search);
+    resetPanel.classList.add('hidden');
+    document.querySelectorAll('#authCard > .tabs,#authForm,#forgotPasswordBtn').forEach(el=>el.classList.remove('hidden'));
+    setMode('login');
+    document.getElementById('password').value='';
+    msg(authMessage,'Password updated successfully. You can log in with your new password.','success');
+  }catch(err){msg(resetMessage,err.message||'Could not update password.')}
+  finally{resetPasswordBtn.disabled=false;resetPasswordBtn.textContent='Update password'}
+};
 function saveSession(data){localStorage.setItem('eh_session',JSON.stringify(data))}
 function getSession(){try{return JSON.parse(localStorage.getItem('eh_session')||'null')}catch{return null}}
 function clearSession(){localStorage.removeItem('eh_session')}
@@ -293,6 +357,6 @@ document.getElementById('adminUsersTable').addEventListener('click',e=>{const b=
 document.getElementById('adminRefresh').onclick=loadAdmin;
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>goPage(b.dataset.page));document.querySelectorAll('[data-page-link]').forEach(b=>b.onclick=()=>goPage(b.dataset.pageLink));document.getElementById('openProfilePage').onclick=openProfile;
 let siteVisitId=null,siteVisitHeartbeat=null;function siteVisitKey(){return 'eh_site_visit'}function getSavedSiteVisit(){try{return JSON.parse(localStorage.getItem(siteVisitKey())||'null')}catch{return null}}function clearSavedSiteVisit(){localStorage.removeItem(siteVisitKey())}async function startSiteVisit(){if(!currentUser)return;try{const saved=getSavedSiteVisit(),now=Date.now();if(saved&&saved.id&&saved.userId===currentUser.id&&now-(Number(saved.lastSeen)||0)<30*60*1000){siteVisitId=saved.id}else{const startedAt=new Date().toISOString();const row=await api('/rest/v1/site_visits',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({user_id:currentUser.id,started_at:startedAt,last_seen_at:startedAt,duration_seconds:0})});siteVisitId=row?.[0]?.id;localStorage.setItem(siteVisitKey(),JSON.stringify({id:siteVisitId,userId:currentUser.id,lastSeen:now,startedAt}))}if(siteVisitHeartbeat)clearInterval(siteVisitHeartbeat);siteVisitHeartbeat=setInterval(updateSiteVisit,60000);await updateSiteVisit()}catch(err){console.warn('Site analytics:',err.message)}}async function updateSiteVisit(end=false){if(!siteVisitId)return;try{const saved=getSavedSiteVisit();const started=saved?.startedAt?new Date(saved.startedAt):null;const patch={last_seen_at:new Date().toISOString()};if(started&&!Number.isNaN(started.getTime()))patch.duration_seconds=Math.max(0,Math.floor((Date.now()-started.getTime())/1000));if(end){patch.ended_at=new Date().toISOString();if(siteVisitHeartbeat)clearInterval(siteVisitHeartbeat);siteVisitHeartbeat=null}await api('/rest/v1/site_visits?id=eq.'+encodeURIComponent(siteVisitId),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(patch)});localStorage.setItem(siteVisitKey(),JSON.stringify({id:siteVisitId,userId:currentUser?.id,lastSeen:Date.now(),startedAt:saved?.startedAt||new Date().toISOString()}))}catch(err){console.warn('Site analytics update:',err.message)}}function endSiteVisit(){updateSiteVisit(true)}document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')endSiteVisit();else if(currentUser)startSiteVisit()});
-const existing=getSession();if(existing?.user&&existing?.access_token){showApp(existing.user)}else showAuth();
+(async()=>{const recovery=await openRecovery();if(recovery)return;const existing=getSession();if(existing?.user&&existing?.access_token){showApp(existing.user)}else showAuth()})();
 </script>
 </body></html>
