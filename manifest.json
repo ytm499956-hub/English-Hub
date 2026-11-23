@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "English Hub",
+  "short_name": "English Hub",
+  "description": "Your personal place for English learning resources and daily progress.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f6fa",
+  "theme_color": "#4f5fe7",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
